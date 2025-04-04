@@ -1,3 +1,12 @@
+const moongose = require("mongoose");
+moongose.set("strictQuery", false);
+const mongoDB = "mongodb+srv://stellarwalletDB:stellarpassword123@stellarwallet.3svl2eh.mongodb.net/?retryWrites=true&w=majority&appName=stellarwallet";
+
+main().catch((err) => console.log(err));
+async function main(){
+    const conn = moongose.connect(mongoDB);
+}
+
 require('dotenv').config();
 const bodyParser = require('body-parser');
 const cors = require("cors");
@@ -8,6 +17,10 @@ const debug = require('debug')('stellarwallet:server');
 
 const app = express();
 
+//view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
 app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
@@ -16,10 +29,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 const indexRoutes = require("./routes/index");
+const userRoutes = require("./routes/userRoute");
 const { Server } = require('http');
+const { default: mongoose } = require("mongoose");
 
 //using the routes
-app.use('/api', indexRoutes)
+app.use('/api', indexRoutes);
+app.use('/user', userRoutes);
 
 
 //setting the home routes

@@ -7,12 +7,11 @@ const UserSchema = new schema({
     lastName : {type:String, reqired:true},
     email : {type:String, required:true, unique:true},
     password : {type:String, required:true, minLength:6},
-    pin : {type:Number, minLength:1, maxLength:6},
+    pin : {type:String, minLength:3,},
     role : {type:String, required:true, enum:["user", "admin"], default:"admin"},
     createAt : {type:Date, default:Date.now()},
     
-}
-)
+});
 
 UserSchema.virtual('name').get(function(){
     let fullname = ""
@@ -23,9 +22,9 @@ UserSchema.virtual('name').get(function(){
     return fullname;
 });
 
-UserSchema.pre('save', async function(next){
-    if(!this.isModified("pin")) return next();
-    this.hashpin = await bcrypt.hash(String(this.pin), 10);
-    next();
-});
+// UserSchema.pre('save', async function(next){
+//     if(!this.isModified("pin")) return next();
+//     this.hashpin = await bcrypt.hash(String(this.pin), 10);
+//     next();
+// });
 module.exports = moongose.model('User', UserSchema)

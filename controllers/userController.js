@@ -42,13 +42,13 @@ exports.userSignup = asyncHandler(async function(req, res, next){
 
 exports.signin = asyncHandler(async function(req, res, next){
     try{
-        const {email, pin} = req.body;
+        const {email, password} = req.body;
         const existingUser = await user.findOne({email});
         if (!existingUser){
             return res.status(400).json({message: "User not found"});
         }
 
-        const isMatch = await bcrypt.compare(pin, existingUser.pin);
+        const isMatch = await bcrypt.compare(password, existingUser.password);
         if(!isMatch){
             res.status(400).json({message:"invalid credentials"});
         }
@@ -64,6 +64,7 @@ exports.signin = asyncHandler(async function(req, res, next){
 });
 
 let tokenBlacklist = [];
+exports.tokenBlacklist = tokenBlacklist;
 exports.signOut = asyncHandler(async function(req, res, next){
     try{
         
@@ -78,6 +79,7 @@ exports.signOut = asyncHandler(async function(req, res, next){
         next(err);
     }
 });
+
 
 exports.dashboard = asyncHandler(async function(req, res, next){
     try{
@@ -109,7 +111,7 @@ exports.requestPasswordReset =asyncHandler(async function (req, res, next){
 
     const resetToken = jwt.sign({id:existingUser._id}, process.env.SECRET_KEY, {expiresIn:"15m"});
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
+    const resetUrl = `${process.env.FRONTEND_URL}/user/reset-password/${resetToken}`
     const message =`You requested a password reset. click the link below to reset your password:\n\n${resetUrl}\n\n if you did not request this, pls ignore this email`;
 
     try{
@@ -123,11 +125,11 @@ exports.requestPasswordReset =asyncHandler(async function (req, res, next){
 
 exports.passworReset = asyncHandler(async function(req, res, next){
     try{
-        const newPassword = req.body;
-        const resetToken = req.params;
-
+        const {newPassword} = req.body;
+        const {resetToken} = req.params;
+        console.log(resetToken);
         const decoded = jwt.verify(resetToken, process.env.SECRET_KEY);
-        const existingUser = await user.findById(decoded);
+        const existingUser = await user.findById(decoded.id);
         if(!existingUser){
             return res.status(404).json({message:"user not found"});
         }

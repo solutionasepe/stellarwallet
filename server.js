@@ -1,19 +1,22 @@
+require('dotenv').config();
 const moongose = require("mongoose");
 moongose.set("strictQuery", false);
-const mongoDB = "mongodb+srv://stellarwalletDB:stellarpassword123@stellarwallet.3svl2eh.mongodb.net/?retryWrites=true&w=majority&appName=stellarwallet";
+const mongoDB = process.env.DATABASE_URL;
 
 main().catch((err) => console.log(err));
 async function main(){
     const conn = moongose.connect(mongoDB);
 }
 
-require('dotenv').config();
+
 const bodyParser = require('body-parser');
 const cors = require("cors");
 const morgan = require("morgan");
 const express = require("express");
 const path = require("path");
 const debug = require('debug')('stellarwallet:server');
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
 
 const app = express();
 
@@ -42,6 +45,27 @@ app.use('/user', userRoutes);
 app.get('/', (req, res)=> {
     res.setEncoding('welcome to stellar app');
 });
+
+//swagger ,
+const swaggerOptions = {
+    definition:{
+        openapi:"3.0.0",
+        info:{
+            title:"stellar wallet API",
+            version:"1.0.0",
+            description:"API documentation for stellar wallet"
+        },
+        servers:[
+            {
+                url:"http://localhost:3000"
+            },
+        ],
+    },
+    apis:["./routes/*.js"],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 //start server
 

@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const user = require("../models/user");
+const {tokenBlacklist} = require("../controllers/userController");
+
 
 const Verify = async function(req, res, next){
     try{
@@ -28,5 +30,4 @@ const isTokenBlacklisted = (req, res, next) => {
     next();
 };
 
-module.exports = Verify;
-module.exports = isTokenBlacklisted;
+module.exports = {Verify, isTokenBlacklisted};
